@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         // Map /widget-icons/** URLs to your local folder
         registry.addResourceHandler("/widget-icons/**")
                 .addResourceLocations(
-                        "file:C:/Users/KrishnangThakkar/OneDrive - Dash Technologies Inc/Desktop/java/Widget-Backend/src/main/resources/uploads/widgets/icons/"
+                        "file:/home/administrator/Pictures/"
                 );
 
     }
