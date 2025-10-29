@@ -62,9 +62,9 @@ public class AuthController
             ResponseCookie jwtCookie = ResponseCookie.from("Authorization", jwtToken)
                     .path("/")
                     .httpOnly(true)
-                    .secure(cookieSecure)
+                    .secure(false)
                     .sameSite("None")
-                    .maxAge(3600)
+                    .maxAge(24 * 60 * 60)
                     .build();
 
             response.addHeader("Set-Cookie", jwtCookie.toString());
