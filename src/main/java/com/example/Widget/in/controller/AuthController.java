@@ -29,7 +29,7 @@ public class AuthController
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<user>> registerUser(@RequestBody LoginRequestDto request)
     {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(userService.RegisterUser(
+        return ResponseEntity.ok(userService.RegisterUser(
                 request.getUsername(),
                 request.getPassword(),
                 request.getFirstname(),
