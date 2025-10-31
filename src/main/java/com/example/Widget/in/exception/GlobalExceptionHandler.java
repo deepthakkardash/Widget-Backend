@@ -19,4 +19,22 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UserAlreadyExists.class)
+    public ResponseEntity<ApiResponse<String>> handleUserAlreadyExists(UserAlreadyExists e)
+    {
+        return new ResponseEntity<>(
+                new ApiResponse<>(false,e.getMessage(), null),
+                HttpStatus.ALREADY_REPORTED
+        );
+    }
+
+    @ExceptionHandler(WidgetNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleUserNotFoundException(WidgetNotFoundException e)
+    {
+        return new ResponseEntity<>(
+                new ApiResponse<>(false,e.getMessage(),null),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
 }

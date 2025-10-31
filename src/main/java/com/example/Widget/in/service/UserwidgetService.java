@@ -3,6 +3,9 @@ package com.example.Widget.in.service;
 import com.example.Widget.in.dto.ApiResponse;
 import com.example.Widget.in.dto.UserWidgetRequest;
 import com.example.Widget.in.dto.UserWidgetResponse;
+import com.example.Widget.in.exception.UserNotFoundException;
+import com.example.Widget.in.exception.UserWidgetNotFoundException;
+import com.example.Widget.in.exception.WidgetNotFoundException;
 import com.example.Widget.in.repository.UserRepository;
 import com.example.Widget.in.repository.UserWidgetRepository;
 import com.example.Widget.in.repository.WidgetRepository;
@@ -38,7 +41,7 @@ public class UserwidgetService
     public ApiResponse<List<UserWidgetResponse>> getusersAllWidget(int userid)
     {
               List<UserWidgetResponse> reslist=  userWidgetRepository.findByUser_Userid(userid)
-        .stream()
+                .stream()
                 .map(uw-> UserWidgetResponse.builder()
 
                         .widgetid(uw.getUser_widget_id())
@@ -62,12 +65,12 @@ public class UserwidgetService
         for (UserWidgetRequest req : requestList) {
             Optional<user> userEntity = userRepository.findById(req.getUserid());
             if (userEntity.isEmpty()) {
-                return new ApiResponse<>(false, "User not found with id: " + req.getUserid(), null);
+               throw  new UserNotFoundException("User not found with id: " + req.getUserid());
             }
 
             Optional<widget> widgetEntity = Optional.ofNullable(widgetRepository.findById(req.getWidgetid()));
             if (widgetEntity.isEmpty()) {
-                return new ApiResponse<>(false, "Widget not found with id: " + req.getWidgetid(), null);
+                throw new WidgetNotFoundException("Widget not found with id: " + req.getWidgetid());
             }
         }
 
@@ -103,7 +106,7 @@ public class UserwidgetService
             userWidgetRepository.deleteById(user_widget_id);
             return new ApiResponse<>(true,"Successfully deleted",null);
         }
-        return new ApiResponse<>(false,"Widget not found with id: " + user_widget_id, null);
+        throw new WidgetNotFoundException("Widget not found with id: " + user_widget_id);
     }
 
 
@@ -116,19 +119,19 @@ public class UserwidgetService
             // Check if user_widget exists
             Optional<user_widget> existingUW = userWidgetRepository.findById(req.getUser_widget_id());
             if (existingUW.isEmpty()) {
-                return new ApiResponse<>(false, "UserWidget not found with id: " + req.getUser_widget_id(), null);
+                throw new UserWidgetNotFoundException("UserWidget not found with id: " + req.getUser_widget_id());
             }
 
             // Validate user
             Optional<user> userEntity = userRepository.findById(req.getUserid());
             if (userEntity.isEmpty()) {
-                return new ApiResponse<>(false, "User not found with id: " + req.getUserid(), null);
+                throw  new UserNotFoundException("User not found with id: " + req.getUserid());
             }
 
             // Validate widget
             Optional<widget> widgetEntity = Optional.ofNullable(widgetRepository.findById(req.getWidgetid()));
             if (widgetEntity.isEmpty()) {
-                return new ApiResponse<>(false, "Widget not found with id: " + req.getWidgetid(), null);
+                throw new WidgetNotFoundException("Widget not found with id: " + req.getWidgetid());
             }
 
             // Update fields
@@ -155,10 +158,9 @@ public class UserwidgetService
     public ApiResponse<String> DeleteAllUserWidgets(int userid)
     {
 
-
         Optional<user> userEntity = userRepository.findById(userid);
         if (userEntity.isEmpty()) {
-            return new ApiResponse<>(false, "User not found with id: " + userid, null);
+            throw  new UserNotFoundException("User not found with id: " + userid);
         }
 
         userWidgetRepository.deleteByUser_Userid(userid);
