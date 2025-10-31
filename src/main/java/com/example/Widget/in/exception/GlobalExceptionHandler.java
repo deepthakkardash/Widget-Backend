@@ -37,4 +37,13 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UserWidgetNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleUserWidgetNotFoundException(UserWidgetNotFoundException e)
+    {
+        return new ResponseEntity<>(
+                new ApiResponse<>(false,e.getMessage(),null),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
 }

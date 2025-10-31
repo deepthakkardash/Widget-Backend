@@ -40,6 +40,11 @@ public class UserwidgetService
 
     public ApiResponse<List<UserWidgetResponse>> getusersAllWidget(int userid)
     {
+
+        if (userRepository.findByUserid(userid) == null)
+        {
+            throw new UserNotFoundException("User Not Exists");
+        }
               List<UserWidgetResponse> reslist=  userWidgetRepository.findByUser_Userid(userid)
                 .stream()
                 .map(uw-> UserWidgetResponse.builder()
@@ -119,6 +124,7 @@ public class UserwidgetService
             // Check if user_widget exists
             Optional<user_widget> existingUW = userWidgetRepository.findById(req.getUser_widget_id());
             if (existingUW.isEmpty()) {
+                System.out.println("UserWidget Not Fount Exception");
                 throw new UserWidgetNotFoundException("UserWidget not found with id: " + req.getUser_widget_id());
             }
 
