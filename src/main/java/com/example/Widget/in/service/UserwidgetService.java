@@ -16,7 +16,8 @@ import com.example.Widget.in.entities.user_widget;
 import com.example.Widget.in.entities.user;
 import com.example.Widget.in.entities.widget;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,17 +39,41 @@ public class UserwidgetService
     private WidgetRepository widgetRepository;
 
 
-    public ApiResponse<List<UserWidgetResponse>> getusersAllWidget(int userid)
-    {
 
-        if (userRepository.findByUserid(userid) == null)
-        {
-            throw new UserNotFoundException("User Not Exists");
+    private Integer getAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
         }
-              List<UserWidgetResponse> reslist=  userWidgetRepository.findByUser_Userid(userid)
-                .stream()
-                .map(uw-> UserWidgetResponse.builder()
 
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
+            String username = userDetails.getUsername();
+            user foundUser = userRepository.findByUsername(username);
+            if (foundUser == null) {
+                throw new UserNotFoundException("User Not Exists");
+            }
+            return foundUser.getUserid();
+
+        } else if (principal instanceof user customUser) {
+            return customUser.getUserid();
+        } else {
+            throw new RuntimeException("Unexpected principal type: " + principal.getClass().getName());
+        }
+    }
+
+
+
+
+    public ApiResponse<List<UserWidgetResponse>> getusersAllWidget() {
+        Integer userid = getAuthenticatedUserId();
+        System.out.println("USER ID : " + userid);
+
+        List<UserWidgetResponse> reslist = userWidgetRepository.findByUser_Userid(userid)
+                .stream()
+                .map(uw -> UserWidgetResponse.builder()
                         .widgetid(uw.getUser_widget_id())
                         .userid(uw.getUser().getUserid())
                         .widgetid(uw.getWidget().getWidgetid())
@@ -59,8 +84,10 @@ public class UserwidgetService
                         .build())
                 .collect(Collectors.toList());
 
-        return new ApiResponse<>(true,"Successfully fetched", reslist);
+        return new ApiResponse<>(true, "Successfully fetched", reslist);
     }
+
+
 
     public ApiResponse<String> AddUserWidget(UserWidgetRequest[] userwidgets)
     {

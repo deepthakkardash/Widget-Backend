@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
 
 @RestController
@@ -20,10 +21,10 @@ public class UserWidgetController {
 
 
     //error
-    @GetMapping("/{userid}")
-    public ResponseEntity<ApiResponse<List<UserWidgetResponse>>> getUserWidgets(@PathVariable int userid)
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<UserWidgetResponse>>> getUserWidgets()
     {
-        return ResponseEntity.ok(userwidgetService.getusersAllWidget(userid));
+        return ResponseEntity.ok(userwidgetService.getusersAllWidget());
     }
 
     @PostMapping("/AddWidgets")
