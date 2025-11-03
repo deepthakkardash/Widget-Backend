@@ -29,21 +29,12 @@ public class AuthController
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<user>> registerUser(@RequestBody LoginRequestDto request)
     {
-        user userResponse = userService.RegisterUser(
+        return ResponseEntity.ok(userService.RegisterUser(
                 request.getUsername(),
                 request.getPassword(),
                 request.getFirstname(),
                 request.getLastname()
-                );
-
-        if (userResponse != null)
-        {
-            ApiResponse<user> res = new ApiResponse<>(true, "Successfully Registered", userResponse);
-            return ResponseEntity.ok(res);
-        }
-
-        ApiResponse<user> res = new ApiResponse<>(false, "Failed To Register", null);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        ));
     }
 
 
@@ -51,29 +42,6 @@ public class AuthController
     @PostMapping("/login")
     public  ResponseEntity<ApiResponse<String>> loginUser(@RequestBody LoginRequestDto request,HttpServletResponse response)
     {
-        user userResponse = userService.LoginUser(request.getUsername(), request.getPassword());
-
-        if (userResponse != null)
-        {
-
-            String jwtToken = jwtTokenUtil.generateToken(userResponse.getUsername());
-
-            boolean cookieSecure = false;
-            ResponseCookie jwtCookie = ResponseCookie.from("Authorization", jwtToken)
-                    .path("/")
-                    .httpOnly(true)
-                    .secure(false)
-                    .sameSite("None")
-                    .maxAge(24 * 60 * 60)
-                    .build();
-
-            response.addHeader("Set-Cookie", jwtCookie.toString());
-
-            ApiResponse<String> res = new ApiResponse<>(true, "Successfully Logged", jwtToken);
-            return ResponseEntity.ok(res);
-        }
-
-        ApiResponse<String> res = new ApiResponse<>(false, "Failed To Login", null);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+        return ResponseEntity.ok(userService.LoginUser(request.getUsername(), request.getPassword(),response));
     }
 }

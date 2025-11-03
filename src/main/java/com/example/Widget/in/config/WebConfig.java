@@ -9,11 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Map /widget-icons/** URLs to your local folder
         registry.addResourceHandler("/widget-icons/**")
-                .addResourceLocations(
-                        "file:/home/administrator/Pictures/"
-                );
-
+                .addResourceLocations("classpath:/uploads/widgets/icons/");
     }
 }

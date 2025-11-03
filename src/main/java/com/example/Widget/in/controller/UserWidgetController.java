@@ -18,6 +18,8 @@ public class UserWidgetController {
     @Autowired
     private UserwidgetService userwidgetService;
 
+
+    //error
     @GetMapping("/{userid}")
     public ResponseEntity<ApiResponse<List<UserWidgetResponse>>> getUserWidgets(@PathVariable int userid)
     {
