@@ -28,13 +28,13 @@ public class UserWidgetController {
     }
 
     @PostMapping("/AddWidgets")
-    public ResponseEntity<ApiResponse<String>> AddUserWidgets(@RequestBody UserWidgetRequest[] userwidgetRequest)
+    public ResponseEntity<ApiResponse<String>> AddUserWidgets(@RequestBody List<UserWidgetRequest> userwidgetRequest)
     {
         return ResponseEntity.ok(userwidgetService.AddUserWidget(userwidgetRequest));
     }
 
     @PostMapping("/updateWidget")
-    public ResponseEntity<ApiResponse<String>> UpdateUserWidget(@RequestBody UserWidgetRequest[] userwidgetRequest)
+    public ResponseEntity<ApiResponse<String>> UpdateUserWidget(@RequestBody List<UserWidgetRequest> userwidgetRequest)
     {
         return ResponseEntity.ok(userwidgetService.UpdateUserWidget(userwidgetRequest));
     }

@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,38 +90,48 @@ public class UserwidgetService
 
 
 
-    public ApiResponse<String> AddUserWidget(UserWidgetRequest[] userwidgets)
-    {
-        List<UserWidgetRequest> requestList = Arrays.asList(userwidgets);
+    public ApiResponse<String> AddUserWidget(List<UserWidgetRequest> requestList) {
+        Integer userId = getAuthenticatedUserId();
 
-        // Check for missing user/widget manually
-        for (UserWidgetRequest req : requestList) {
-            Optional<user> userEntity = userRepository.findById(getAuthenticatedUserId());
-            if (userEntity.isEmpty()) {
-               throw  new UserNotFoundException("User not found with id: " + getAuthenticatedUserId());
-            }
+        // Fetch user once
+        user userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
-            Optional<widget> widgetEntity = Optional.ofNullable(widgetRepository.findById(req.getWidgetid()));
-            if (widgetEntity.isEmpty()) {
-                throw new WidgetNotFoundException("Widget not found with id: " + req.getWidgetid());
-            }
+        // Collect all requested widget IDs
+        List<Integer> widgetIds = requestList.stream()
+                .map(UserWidgetRequest::getWidgetid)
+                .distinct()
+                .toList();
+
+        // Fetch all widgets in one query
+        List<widget> widgets = widgetRepository.findAllById(widgetIds);
+
+        // Convert to a map for quick lookup
+        Map<Integer, widget> widgetMap = widgets.stream()
+                .collect(Collectors.toMap(widget::getWidgetid, w -> w));
+
+        // Validate that all requested widget IDs exist
+        List<Integer> missingIds = widgetIds.stream()
+                .filter(id -> !widgetMap.containsKey(id))
+                .toList();
+
+        if (!missingIds.isEmpty()) {
+            throw new WidgetNotFoundException("Widget(s) not found with ids: " + missingIds);
         }
 
-        // If all exist, map and save
-        List<user_widget> entities = requestList.stream().map(req -> {
-            user userEntity = userRepository.findById(getAuthenticatedUserId()).get();
-            widget widgetEntity = widgetRepository.findById(req.getWidgetid());
+        // Build entities in one pass
+        List<user_widget> entities = requestList.stream()
+                .map(req -> user_widget.builder()
+                        .user(userEntity)
+                        .widget(widgetMap.get(req.getWidgetid()))
+                        .pos_x(req.getPos_x())
+                        .pos_y(req.getPos_y())
+                        .width(req.getWidth())
+                        .height(req.getHeight())
+                        .build())
+                .toList();
 
-            return user_widget.builder()
-                    .user(userEntity)
-                    .widget(widgetEntity)
-                    .pos_x(req.getPos_x())
-                    .pos_y(req.getPos_y())
-                    .width(req.getWidth())
-                    .height(req.getHeight())
-                    .build();
-        }).collect(Collectors.toList());
-
+        // Save all at once
         userWidgetRepository.saveAll(entities);
 
         return ApiResponse.<String>builder()
@@ -129,6 +140,7 @@ public class UserwidgetService
                 .data("Total added: " + entities.size())
                 .build();
     }
+
 
     @Transactional
     public ApiResponse<String> DeleteUserWidget(int user_widget_id)
@@ -143,49 +155,68 @@ public class UserwidgetService
 
 
 
-    public ApiResponse<String> UpdateUserWidget(UserWidgetRequest[] userwidgets)
-    {
-        List<UserWidgetRequest> requestList = Arrays.asList(userwidgets);
+    public ApiResponse<String> UpdateUserWidget(List<UserWidgetRequest> requestList) {
+        Integer userId = getAuthenticatedUserId();
 
-        for (UserWidgetRequest req : requestList) {
-            // Check if user_widget exists
-            Optional<user_widget> existingUW = userWidgetRepository.findById(req.getUser_widget_id());
-            if (existingUW.isEmpty()) {
-                System.out.println("UserWidget Not Fount Exception");
-                throw new UserWidgetNotFoundException("UserWidget not found with id: " + req.getUser_widget_id());
-            }
+        // Fetch authenticated user once
+        user userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
-            // Validate user
-            Optional<user> userEntity = userRepository.findById(getAuthenticatedUserId());
-            if (userEntity.isEmpty()) {
-                throw  new UserNotFoundException("User not found with id: " + getAuthenticatedUserId());
-            }
+        // Collect all IDs to fetch in batch
+        List<Integer> userWidgetIds = requestList.stream()
+                .map(UserWidgetRequest::getUser_widget_id)
+                .toList();
+        List<Integer> widgetIds = requestList.stream()
+                .map(UserWidgetRequest::getWidgetid)
+                .distinct()
+                .toList();
 
-            // Validate widget
-            Optional<widget> widgetEntity = Optional.ofNullable(widgetRepository.findById(req.getWidgetid()));
-            if (widgetEntity.isEmpty()) {
-                throw new WidgetNotFoundException("Widget not found with id: " + req.getWidgetid());
-            }
+        // Fetch all relevant user_widget and widget entities
+        Map<Integer, user_widget> userWidgetMap = userWidgetRepository.findAllById(userWidgetIds)
+                .stream().collect(Collectors.toMap(user_widget::getUser_widget_id, uw -> uw));
 
-            // Update fields
-            user_widget uw = existingUW.get();
-            uw.setUser(userEntity.get());
-            uw.setWidget(widgetEntity.get());
-            uw.setPos_x(req.getPos_x());
-            uw.setPos_y(req.getPos_y());
-            uw.setWidth(req.getWidth());
-            uw.setHeight(req.getHeight());
+        Map<Integer, widget> widgetMap = widgetRepository.findAllById(widgetIds)
+                .stream().collect(Collectors.toMap(widget::getWidgetid, w -> w));
 
-            // Save updated entity
-            userWidgetRepository.save(uw);
+        // Validate all IDs exist
+        List<Integer> missingUW = userWidgetIds.stream()
+                .filter(id -> !userWidgetMap.containsKey(id))
+                .toList();
+        if (!missingUW.isEmpty()) {
+            throw new UserWidgetNotFoundException("UserWidget(s) not found with ids: " + missingUW);
         }
+
+        List<Integer> missingWidgets = widgetIds.stream()
+                .filter(id -> !widgetMap.containsKey(id))
+                .toList();
+        if (!missingWidgets.isEmpty()) {
+            throw new WidgetNotFoundException("Widget(s) not found with ids: " + missingWidgets);
+        }
+
+        // Apply updates
+        List<user_widget> updatedEntities = requestList.stream()
+                .map(req -> {
+                    user_widget uw = userWidgetMap.get(req.getUser_widget_id());
+                    uw.setUser(userEntity);
+                    uw.setWidget(widgetMap.get(req.getWidgetid()));
+                    uw.setPos_x(req.getPos_x());
+                    uw.setPos_y(req.getPos_y());
+                    uw.setWidth(req.getWidth());
+                    uw.setHeight(req.getHeight());
+                    return uw;
+                })
+                .toList();
+
+        // Save all updated entities in one call
+        userWidgetRepository.saveAll(updatedEntities);
 
         return ApiResponse.<String>builder()
                 .success(true)
                 .message("Widgets updated successfully!")
-                .data("Total updated: " + requestList.size())
+                .data("Total updated: " + updatedEntities.size())
                 .build();
     }
+
 
     @Transactional
     public ApiResponse<String> DeleteAllUserWidgets()
