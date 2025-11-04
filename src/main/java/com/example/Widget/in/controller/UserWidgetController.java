@@ -45,9 +45,9 @@ public class UserWidgetController {
         return ResponseEntity.ok(userwidgetService.DeleteUserWidget(user_widget_id));
     }
 
-    @DeleteMapping("/deleteAllUserWidget/{userid}")
-    public ResponseEntity<ApiResponse<String>> DeleteAllUserWidgets(@PathVariable int userid)
+    @DeleteMapping("/deleteAllUserWidget")
+    public ResponseEntity<ApiResponse<String>> DeleteAllUserWidgets()
     {
-        return ResponseEntity.ok(userwidgetService.DeleteAllUserWidgets(userid));
+        return ResponseEntity.ok(userwidgetService.DeleteAllUserWidgets());
     }
 }

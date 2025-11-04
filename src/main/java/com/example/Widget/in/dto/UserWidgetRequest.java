@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserWidgetRequest {
     private Integer user_widget_id;
-    private int userid;
     private int widgetid;
     private int pos_x;
     private int pos_y;

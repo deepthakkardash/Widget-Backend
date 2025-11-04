@@ -95,9 +95,9 @@ public class UserwidgetService
 
         // Check for missing user/widget manually
         for (UserWidgetRequest req : requestList) {
-            Optional<user> userEntity = userRepository.findById(req.getUserid());
+            Optional<user> userEntity = userRepository.findById(getAuthenticatedUserId());
             if (userEntity.isEmpty()) {
-               throw  new UserNotFoundException("User not found with id: " + req.getUserid());
+               throw  new UserNotFoundException("User not found with id: " + getAuthenticatedUserId());
             }
 
             Optional<widget> widgetEntity = Optional.ofNullable(widgetRepository.findById(req.getWidgetid()));
@@ -108,7 +108,7 @@ public class UserwidgetService
 
         // If all exist, map and save
         List<user_widget> entities = requestList.stream().map(req -> {
-            user userEntity = userRepository.findById(req.getUserid()).get();
+            user userEntity = userRepository.findById(getAuthenticatedUserId()).get();
             widget widgetEntity = widgetRepository.findById(req.getWidgetid());
 
             return user_widget.builder()
@@ -156,9 +156,9 @@ public class UserwidgetService
             }
 
             // Validate user
-            Optional<user> userEntity = userRepository.findById(req.getUserid());
+            Optional<user> userEntity = userRepository.findById(getAuthenticatedUserId());
             if (userEntity.isEmpty()) {
-                throw  new UserNotFoundException("User not found with id: " + req.getUserid());
+                throw  new UserNotFoundException("User not found with id: " + getAuthenticatedUserId());
             }
 
             // Validate widget
@@ -188,15 +188,15 @@ public class UserwidgetService
     }
 
     @Transactional
-    public ApiResponse<String> DeleteAllUserWidgets(int userid)
+    public ApiResponse<String> DeleteAllUserWidgets()
     {
 
-        Optional<user> userEntity = userRepository.findById(userid);
+        Optional<user> userEntity = userRepository.findById(getAuthenticatedUserId());
         if (userEntity.isEmpty()) {
-            throw  new UserNotFoundException("User not found with id: " + userid);
+            throw  new UserNotFoundException("User not found with id: " + getAuthenticatedUserId());
         }
 
-        userWidgetRepository.deleteByUser_Userid(userid);
+        userWidgetRepository.deleteByUser_Userid(getAuthenticatedUserId());
         return new ApiResponse<>(true, "Successfully deleted", null);
     }
 
