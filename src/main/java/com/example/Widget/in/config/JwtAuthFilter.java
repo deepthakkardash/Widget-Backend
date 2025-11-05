@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    private static final Logger logger= LoggerFactory.getLogger(JwtAuthFilter.class);
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -42,7 +46,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // ✅ Additional safety: check after generation/extraction
         if (!StringUtils.hasText(token)) {
-            System.out.println("⚠️ JWT token found but is blank or invalid!");
+            logger.error("⚠️ JWT token found but is blank or invalid!");
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             username = jwtTokenUtil.extractUsername(token);
         } catch (Exception e) {
-            System.out.println("⚠️ Invalid or expired JWT token: " + e.getMessage());
+            logger.error("⚠️ Invalid or expired JWT token: " + e.getMessage());
             filterChain.doFilter(request, response);
             return;
         }
@@ -70,7 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
-                System.out.println("⚠️ Token validation failed for username: " + username);
+                logger.error("⚠️ Token validation failed for username: " + username);
             }
         }
 

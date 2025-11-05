@@ -9,6 +9,8 @@ import com.example.Widget.in.exception.WidgetNotFoundException;
 import com.example.Widget.in.repository.UserRepository;
 import com.example.Widget.in.repository.UserWidgetRepository;
 import com.example.Widget.in.repository.WidgetRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class UserwidgetService
     @Autowired
     private WidgetRepository widgetRepository;
 
+    private static final Logger logger= LoggerFactory.getLogger(UserwidgetService.class);
 
 
     private Integer getAuthenticatedUserId() {
@@ -70,7 +73,7 @@ public class UserwidgetService
 
     public ApiResponse<List<UserWidgetResponse>> getusersAllWidget() {
         Integer userid = getAuthenticatedUserId();
-        System.out.println("USER ID : " + userid);
+        logger.error("USER ID : " + userid);
 
         List<UserWidgetResponse> reslist = userWidgetRepository.findByUser_Userid(userid)
                 .stream()
