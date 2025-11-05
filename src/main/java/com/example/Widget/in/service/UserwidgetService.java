@@ -75,7 +75,7 @@ public class UserwidgetService
         List<UserWidgetResponse> reslist = userWidgetRepository.findByUser_Userid(userid)
                 .stream()
                 .map(uw -> UserWidgetResponse.builder()
-                        .widgetid(uw.getUser_widget_id())
+                        .user_widget_id(uw.getUser_widget_id())
                         .userid(uw.getUser().getUserid())
                         .widgetid(uw.getWidget().getWidgetid())
                         .pos_x(uw.getPos_x())
