@@ -73,7 +73,7 @@ public class UserwidgetService
 
     public ApiResponse<List<UserWidgetResponse>> getusersAllWidget() {
         Integer userid = getAuthenticatedUserId();
-        logger.error("USER ID : " + userid);
+        logger.error("USER ID : {}" , userid);
 
         List<UserWidgetResponse> reslist = userWidgetRepository.findByUser_Userid(userid)
                 .stream()

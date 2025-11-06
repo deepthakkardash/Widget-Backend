@@ -46,7 +46,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // ✅ Additional safety: check after generation/extraction
         if (!StringUtils.hasText(token)) {
-            logger.error("⚠️ JWT token found but is blank or invalid!");
+            logger.error("⚠️ JWT token found but is blank or invalid. token: {}",token);
             filterChain.doFilter(request, response);
             return;
         }
@@ -56,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             username = jwtTokenUtil.extractUsername(token);
         } catch (Exception e) {
-            logger.error("⚠️ Invalid or expired JWT token: " + e.getMessage());
+            logger.error("⚠️ Invalid or expired JWT token: {}", token);
             filterChain.doFilter(request, response);
             return;
         }
@@ -74,7 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
-                logger.error("⚠️ Token validation failed for username: " + username);
+                logger.error("⚠️ Token validation failed for username: {}", username);
             }
         }
 
