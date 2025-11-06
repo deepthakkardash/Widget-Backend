@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @Entity
@@ -32,6 +34,32 @@ public class user {
 
     @Transient
     private String fullname;
+
+
+    @Column(name = "created_by_user_id", updatable = false)
+    private Integer createdByUserId;
+
+    @Column(name = "created_date", updatable = false)
+    private LocalDateTime createdDate;
+
+    @Column(name = "edited_by_user_id")
+    private Integer editedByUserId;
+
+    @Column(name = "edited_date")
+    private LocalDateTime editedDate;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdDate = LocalDateTime.now();
+//        this.createdByUserId = getCurrentUserId();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.editedDate = LocalDateTime.now();
+//        this.editedByUserId = getCurrentUserId();
+    }
+
 
     @PostLoad
     @PostPersist

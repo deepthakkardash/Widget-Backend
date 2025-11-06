@@ -34,6 +34,7 @@ public class UserService
             user newUser = new user(username, encodedPassword, firstname, lastname);
             user savedUser = userRepository.save(newUser);
             savedUser.setFullnameAfterLoad();
+            savedUser.setCreatedByUserId(savedUser.getUserid());
             return new ApiResponse<>(true,"Register Successfully",savedUser);
         }
         throw new UserNotFoundException("Username Already Exists");
