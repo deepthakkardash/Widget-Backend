@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
 
 @RestController
@@ -20,20 +21,20 @@ public class UserWidgetController {
 
 
     //error
-    @GetMapping("/{userid}")
-    public ResponseEntity<ApiResponse<List<UserWidgetResponse>>> getUserWidgets(@PathVariable int userid)
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<UserWidgetResponse>>> getUserWidgets()
     {
-        return ResponseEntity.ok(userwidgetService.getusersAllWidget(userid));
+        return ResponseEntity.ok(userwidgetService.getusersAllWidget());
     }
 
     @PostMapping("/AddWidgets")
-    public ResponseEntity<ApiResponse<String>> AddUserWidgets(@RequestBody UserWidgetRequest[] userwidgetRequest)
+    public ResponseEntity<ApiResponse<String>> AddUserWidgets(@RequestBody List<UserWidgetRequest> userwidgetRequest)
     {
         return ResponseEntity.ok(userwidgetService.AddUserWidget(userwidgetRequest));
     }
 
     @PostMapping("/updateWidget")
-    public ResponseEntity<ApiResponse<String>> UpdateUserWidget(@RequestBody UserWidgetRequest[] userwidgetRequest)
+    public ResponseEntity<ApiResponse<String>> UpdateUserWidget(@RequestBody List<UserWidgetRequest> userwidgetRequest)
     {
         return ResponseEntity.ok(userwidgetService.UpdateUserWidget(userwidgetRequest));
     }
@@ -44,9 +45,9 @@ public class UserWidgetController {
         return ResponseEntity.ok(userwidgetService.DeleteUserWidget(user_widget_id));
     }
 
-    @DeleteMapping("/deleteAllUserWidget/{userid}")
-    public ResponseEntity<ApiResponse<String>> DeleteAllUserWidgets(@PathVariable int userid)
+    @DeleteMapping("/deleteAllUserWidget")
+    public ResponseEntity<ApiResponse<String>> DeleteAllUserWidgets()
     {
-        return ResponseEntity.ok(userwidgetService.DeleteAllUserWidgets(userid));
+        return ResponseEntity.ok(userwidgetService.DeleteAllUserWidgets());
     }
 }
