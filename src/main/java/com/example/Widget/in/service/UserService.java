@@ -52,7 +52,7 @@ public class UserService
             ResponseCookie jwtCookie = ResponseCookie.from("Authorization", jwtToken)
                     .path("/")
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .sameSite("None")
                     .maxAge(24 * 60 * 60)
                     .build();

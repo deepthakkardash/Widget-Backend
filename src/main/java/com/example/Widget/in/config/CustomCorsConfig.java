@@ -14,7 +14,7 @@ public class CustomCorsConfig {
     public CorsConfigurationSource corsConfigurationSource()
     {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://diplomatically-tasteless-demarcus.ngrok-free.dev"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://diplomatically-tasteless-demarcus.ngrok-free.dev", "https://gargety-fishable-norman.ngrok-free.dev"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type","Set-Cookie","ngrok-skip-browser-warning"));
         configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
